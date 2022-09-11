@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Event\Event as EventEvent;
+use Cake\Event;
 use Cake\Event\EventInterface;
 
 /**
@@ -126,7 +128,7 @@ class UsersController extends AppController
         $this->Flash->success('Você deslogou do sistema.');
         return $this->redirect($this->Auth->logout());
     }
-    public function beforeFilter(EventInterface  $event)
+    public function beforeFilter(EventInterface $event)
     {
         $this->Auth->allow(['add']);
     }
