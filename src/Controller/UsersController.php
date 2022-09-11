@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\Event\EventInterface;
+
 /**
  * Users Controller
  *
@@ -109,9 +111,23 @@ class UsersController extends AppController
         try {
             if ($this->request->is('post')) {
                 $user = $this->Auth->identify();
+                if ($user) {
+                    $this->Auth->setUser($user);
+                    return $this->redirect($this->Auth->redirectUrl());
+                }
+                $this->Flash->error('Email ou senha estão incorretos');
             }
         } catch (\Throwable $th) {
-            //throw $th;
+            throw $th;
         }
+    }
+    public function logout()
+    {
+        $this->Flash->success('Você deslogou do sistema.');
+        return $this->redirect($this->Auth->logout());
+    }
+    public function beforeFilter(EventInterface  $event)
+    {
+        $this->Auth->allow(['add']);
     }
 }
