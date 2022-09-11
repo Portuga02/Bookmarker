@@ -20,11 +20,11 @@ class BookmarksController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Users'],
+            'conditions' => [
+                'Bookmarks.user_id' => $this->Auth->user('id'),
+            ],
         ];
-        $bookmarks = $this->paginate($this->Bookmarks);
-
-        $this->set(compact('bookmarks'));
+        $this->set('bookmarks', $this->paginate($this->Bookmarks));
     }
 
     /**
@@ -117,5 +117,27 @@ class BookmarksController extends AppController
             'tags' => $tags
         ]);
         $this->set(compact('bookmarks', 'tags'));
+    }
+
+    public function isAuthorized($user)
+    {
+        $action = $this->request->params['action'];
+
+        // As ações add e index são permitidas sempre.
+        if (in_array($action, ['index', 'add', 'tags'])) {
+            return true;
+        }
+        // Todas as outras ações requerem um id.
+        if (!$this->request->getParam('pass.0')) {
+            return false;
+        }
+
+        // Checa se o bookmark pertence ao user atual.
+        $id = $this->request->getParam('pass.0');
+        $bookmark = $this->Bookmarks->get($id);
+        if ($bookmark->user_id == $user['id']) {
+            return true;
+        }
+        return parent::isAuthorized($user);
     }
 }
